@@ -4,15 +4,16 @@
 
 # Defaults required:
 # https://docs.docker.com/reference/build-checks/invalid-default-arg-in-from
-ARG BASE_AMAZONLINUX_REGISTRY_PATH='public.ecr.aws'
+ARG BASE_AMAZONLINUX_REGISTRY_DOMAIN='public.ecr.aws'
+ARG BASE_AMAZONLINUX_REGISTRY_PATH="${BASE_AMAZONLINUX_REGISTRY_DOMAIN}/amazonlinux/"
 ARG BASE_AMAZONLINUX_TAG='2023.10.20260216.1'
 ARG BASE_AMAZONLINUX_DIGEST='sha256:dfa14233aa5e9f951074312290a1d217272cd1a04babdf1f87a68ea27d6eeac6'
-FROM "${BASE_AMAZONLINUX_REGISTRY_PATH}/amazonlinux/amazonlinux:${BASE_AMAZONLINUX_TAG}@${BASE_AMAZONLINUX_DIGEST}"
+FROM "${BASE_AMAZONLINUX_REGISTRY_PATH}amazonlinux:${BASE_AMAZONLINUX_TAG}@${BASE_AMAZONLINUX_DIGEST}"
 
 ARG BASE_AMAZONLINUX_REGISTRY_PATH
 ARG BASE_AMAZONLINUX_TAG
 ARG BASE_AMAZONLINUX_DIGEST
-LABEL org.opencontainers.image.base.name="${BASE_AMAZONLINUX_REGISTRY_PATH}/amazonlinux:${BASE_AMAZONLINUX_TAG}"
+LABEL org.opencontainers.image.base.name="${BASE_AMAZONLINUX_REGISTRY_PATH}amazonlinux:${BASE_AMAZONLINUX_TAG}"
 LABEL org.opencontainers.image.base.digest="${BASE_AMAZONLINUX_DIGEST}"
 
 LABEL org.opencontainers.image.documentation="https://github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws"
