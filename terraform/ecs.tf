@@ -65,7 +65,7 @@ resource "aws_ecs_task_definition" "hello_api" {
   container_definitions = jsonencode([
     {
       name  = "hello_api"
-      image = "${aws_ecr_repository.hello[local.ecr_repository_name].repository_url}:${var.hello_api_aws_ecr_image_tag}"
+      image = "${aws_ecr_repository.hello[local.ecr_repository_name].repository_url}:${var.hello_api_image_tag}"
 
       privileged = false
 

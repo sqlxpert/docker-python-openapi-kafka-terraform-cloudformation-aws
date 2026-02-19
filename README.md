@@ -327,12 +327,15 @@ Jump to:
     Docker container image, then build it.
 
     ```shell
-    AMAZON_LINUX_BASE_VERSION=$(terraform output -raw 'amazon_linux_base_version')
-    AMAZON_LINUX_BASE_DIGEST=$(terraform output -raw 'amazon_linux_base_digest')
+    BASE_AMAZONLINUX_REGISTRY_DOMAIN='public.ecr.aws'
+    BASE_AMAZONLINUX_TAG=$(terraform output -raw 'base_amazonlinux_tag')
+    BASE_AMAZONLINUX_DIGEST=$(terraform output -raw 'base_amazonlinux_digest')
     AWS_ECR_REGISTRY_REGION=$(terraform output -raw 'hello_api_aws_ecr_registry_region')
     AWS_ECR_REGISTRY_URI=$(terraform output -raw 'hello_api_aws_ecr_registry_uri')
     AWS_ECR_REPOSITORY_URL=$(terraform output -raw 'hello_api_aws_ecr_repository_url')
-    HELLO_API_AWS_ECR_IMAGE_TAG=$(terraform output -raw 'hello_api_aws_ecr_image_tag')
+    HELLO_API_IMAGE_TAG=$(terraform output -raw 'hello_api_image_tag')
+
+    aws ecr-public get-login-password --region 'us-east-1' | sudo docker login --username 'AWS' --password-stdin "${BASE_AMAZONLINUX_REGISTRY_DOMAIN}"
 
     aws ecr get-login-password --region "${AWS_ECR_REGISTRY_REGION}" | sudo docker login --username 'AWS' --password-stdin "${AWS_ECR_REGISTRY_URI}"
 
@@ -341,12 +344,12 @@ Jump to:
     ```
 
     ```shell
-    sudo docker buildx build --build-arg AMAZON_LINUX_BASE_VERSION="${AMAZON_LINUX_BASE_VERSION}" --build-arg AMAZON_LINUX_BASE_DIGEST="${AMAZON_LINUX_BASE_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_AWS_ECR_IMAGE_TAG}" --output 'type=docker' .
+    sudo docker buildx build --build-arg BASE_AMAZONLINUX_REGISTRY_DOMAIN="${BASE_AMAZONLINUX_REGISTRY_DOMAIN}" --build-arg BASE_AMAZONLINUX_TAG="${BASE_AMAZONLINUX_TAG}" --build-arg BASE_AMAZONLINUX_DIGEST="${BASE_AMAZONLINUX_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}" --output 'type=docker' .
 
     ```
 
     ```shell
-    sudo docker push "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_AWS_ECR_IMAGE_TAG}"
+    sudo docker push "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}"
 
     ```
 
@@ -363,14 +366,14 @@ Jump to:
     for all options.
 
     ```shell
-    aws ecr start-image-scan --repository-name 'hello_api' --image-id "imageTag=${HELLO_API_AWS_ECR_IMAGE_TAG}"
+    aws ecr start-image-scan --repository-name 'hello_api' --image-id "imageTag=${HELLO_API_IMAGE_TAG}"
 
     ```
 
     Carefully review findings from a manual or automatic vulnerability scan.
 
     ```shell
-    aws ecr describe-image-scan-findings --repository-name 'hello_api' --image-id "imageTag=${HELLO_API_AWS_ECR_IMAGE_TAG}"
+    aws ecr describe-image-scan-findings --repository-name 'hello_api' --image-id "imageTag=${HELLO_API_IMAGE_TAG}"
 
     ```
 
@@ -393,14 +396,14 @@ Jump to:
     variables in Terraform, run `terraform apply`&nbsp;, and re-set the
     environment variables.
 
-    Then, to re-build the image, run `HELLO_API_AWS_ECR_IMAGE_TAG='1.0.1'`
+    Then, to re-build the image, run `HELLO_API_IMAGE_TAG='1.0.1'`
     (choose an appropriate new version number, taking
     [semantic&nbsp;versioning](https://semver.org/#semantic-versioning-specification-semver)
     into account) in the shell and repeat the build and push commands.
 
     To deploy the new image version, set
-    `hello_api_aws_ecr_image_tag = "1.0.1"` (for example) in Terraform and
-    run `terraform apply` one more time.
+    `hello_api_image_tag = "1.0.1"` (for example) in Terraform and run
+    `terraform apply` one more time.
 
     </details>
 

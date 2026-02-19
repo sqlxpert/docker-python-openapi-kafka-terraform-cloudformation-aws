@@ -44,7 +44,7 @@ variable "create_aws_ecr_repository" {
   default = true
 }
 
-variable "hello_api_aws_ecr_image_tag" {
+variable "hello_api_image_tag" {
   type        = string
   description = "Version tag of the hello_api image in the Elastic Container Registry repository"
 
@@ -123,24 +123,23 @@ variable "create_lambda_testevent_schema_registry" {
 # (https://gallery.ecr.aws/amazonlinux/amazonlinux), either of which would be
 # needed. Using the special AWS account number 137112412989 for registry_id
 # gives a resource policy permissions error. (If not specified, registry_id
-# defaults to the caller's own AWS account number if ; that's all that's meant
-# by the "default" public registry!) I don't want to depend on an entire
-# Terraform module or on a non-AWS provider, and read Amazon Linux 2023
-# container metadata from the Docker registry instead of from the upstream
-# origin, AWS!
+# defaults to the caller's own AWS account number; that's all that's meant by
+# the "default" public registry!) I don't want to depend on an entire Terraform
+# module or on a non-AWS provider, and read Amazon Linux 2023 container
+# metadata from the Docker registry instead of from the upstream origin, AWS!
 # https://github.com/hashicorp/terraform-provider-aws/issues/41718
 # https://registry.terraform.io/providers/hashicorp/aws/6.19.0/docs/data-sources/ecrpublic_images
 
-variable "amazon_linux_base_version" {
+variable "base_amazonlinux_tag" {
   type        = string
-  description = "The version of the Amazon Linux base image. See docs.aws.amazon.com/linux/al2023/ug/base-container.html , gallery.ecr.aws/amazonlinux/amazonlinux , and github.com/amazonlinux/container-images/blob/al2023/Dockerfile"
+  description = "Version of the Amazon Linux base image. See docs.aws.amazon.com/linux/al2023/ug/base-container.html and gallery.ecr.aws/amazonlinux/amazonlinux"
 
-  default = "2023.9.20251105.0"
+  default = "2023.10.20260216.1"
 }
 
-variable "amazon_linux_base_digest" {
+variable "base_amazonlinux_digest" {
   type        = string
-  description = "The digest of the Amazon Linux base image. See github.com/amazonlinux/container-images/blob/al2023/Dockerfile"
+  description = "Digest of the Amazon Linux base image"
 
-  default = "sha256:5ea333708360add6cc16ecec2569b8b75b6ee862528217bac65ad80752f4129b"
+  default = "sha256:dfa14233aa5e9f951074312290a1d217272cd1a04babdf1f87a68ea27d6eeac6"
 }

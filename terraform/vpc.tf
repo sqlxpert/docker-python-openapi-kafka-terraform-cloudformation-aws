@@ -133,7 +133,7 @@ module "hello_vpc_subnets" {
   count = var.create_vpc ? 1 : 0
 
   source  = "cloudposse/dynamic-subnets/aws"
-  version = "2.4.2"
+  version = "3.1.1"
 
   name    = "hello"
   enabled = true # Prefer module.count , which relies solely on HCL.
@@ -148,8 +148,10 @@ module "hello_vpc_subnets" {
     ])
   }]
 
-  max_subnet_count = var.vpc_private_subnet_count
   # Maximum subnets per type (public or private), not overall!
+  max_subnet_count             = var.vpc_private_subnet_count
+  private_subnets_per_az_count = 1
+  public_subnets_per_az_count  = 1
 
   public_route_table_enabled            = true
   public_route_table_per_subnet_enabled = false
