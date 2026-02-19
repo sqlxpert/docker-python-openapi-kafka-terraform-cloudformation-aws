@@ -287,8 +287,13 @@ Jump to:
 
     ```
 
+    ```shell
+    terraform apply
+
+    ```
+
     <details>
-      <summary>About this two-stage process...</summary>
+      <summary>Why two stages?</summary>
 
     <br/>
 
@@ -296,15 +301,16 @@ Jump to:
     [dynamic-subnets](https://registry.terraform.io/modules/cloudposse/dynamic-subnets/aws/latest)
     module isn't dynamic enough to co-operate with
     [AWS&nbsp;IP&nbsp;Address&nbsp;Manager&nbsp;(IPAM)](https://docs.aws.amazon.com/vpc/latest/ipam/what-it-is-ipam.html),
-    so you have to let IPAM finalize subnet IP address range allocations
-    beforehand.
+    so you have _finalize_ the IPAM subnet IP address range allocations before
+    calling the module.
+
+    Creating the IPAM resource planning pool for VPC private IP addresses can
+    take as long as 30&nbsp;minutes, as noted in the Terraform documentation
+    for the
+    [aws_vpc_ipam_pool](https://registry.terraform.io/providers/hashicorp/aws/6.33.0/docs/resources/vpc_ipam_pool)
+    resource.
 
     </details>
-
-    ```shell
-    terraform apply
-
-    ```
 
     <details>
       <summary>In case of "already exists" errors...</summary>
