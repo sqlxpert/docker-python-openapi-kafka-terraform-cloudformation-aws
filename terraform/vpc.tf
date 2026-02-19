@@ -26,8 +26,9 @@ resource "aws_vpc_ipam_pool" "hello_vpc" {
   region        = local.aws_region_main
   ipam_scope_id = aws_vpc_ipam.hello_vpc[count.index].private_default_scope_id
 
-  address_family = "ipv4"
-  auto_import    = false
+  address_family                    = "ipv4"
+  allocation_default_netmask_length = var.vpc_netmask_length
+  auto_import                       = false
 }
 
 resource "aws_vpc_ipam_pool_cidr" "hello_vpc" {
@@ -43,12 +44,6 @@ resource "aws_vpc_ipam_pool_cidr" "hello_vpc" {
   }
 
   cidr = "${var.vpc_ipv4_cidr_block_start}/${var.vpc_netmask_length}"
-
-  # Normally this would be a resource planning pool derived from a VPC, but
-  # as of 2025-09, the Terraform AWS provider does not support SourceResource .
-  # https://docs.aws.amazon.com/vpc/latest/ipam/tutorials-subnet-planning.html
-  # https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-ec2-ipampool.html#cfn-ec2-ipampool-sourceresource
-  # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_ipam_pool
 }
 
 module "hello_vpc" {
@@ -60,7 +55,15 @@ module "hello_vpc" {
   name    = "hello"
   enabled = true # Prefer module.count , which relies solely on HCL.
 
-  ipv4_primary_cidr_block          = aws_vpc_ipam_pool_cidr.hello_vpc[count.index].cidr
+  depends_on = [
+    aws_vpc_ipam_pool_cidr.hello_vpc,
+  ]
+
+  ipv4_primary_cidr_block_association = {
+    ipv4_ipam_pool_id   = aws_vpc_ipam_pool.hello_vpc[count.index].id
+    ipv4_netmask_length = aws_vpc_ipam_pool.hello_vpc[count.index].allocation_default_netmask_length
+  }
+
   assign_generated_ipv6_cidr_block = false
 
   default_security_group_deny_all = true
@@ -81,6 +84,13 @@ resource "aws_vpc_ipam_pool" "hello_vpc_subnets" {
   address_family                    = "ipv4"
   allocation_default_netmask_length = var.vpc_subnet_netmask_length
   auto_import                       = false
+
+  source_resource {
+    resource_type   = "vpc"
+    resource_region = local.aws_region_main
+    resource_owner  = local.aws_account_id
+    resource_id     = module.hello_vpc[count.index].vpc_id
+  }
 }
 
 resource "aws_vpc_ipam_pool_cidr" "hello_vpc_subnets" {
@@ -95,7 +105,7 @@ resource "aws_vpc_ipam_pool_cidr" "hello_vpc_subnets" {
     ]
   }
 
-  cidr = aws_vpc_ipam_pool_cidr.hello_vpc[count.index].cidr
+  cidr = module.hello_vpc[count.index].vpc_cidr_block
 }
 
 locals {

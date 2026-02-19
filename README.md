@@ -33,11 +33,9 @@ Jump to:
 - Amazon Linux starts with fewer vulnerabilities, is updated frequently by AWS
   staff, and uses
   [deterministic&nbsp;operating&nbsp;system&nbsp;package&nbsp;versions](https://docs.aws.amazon.com/linux/al2023/ug/deterministic-upgrades.html)
-
 - [AWS&nbsp;CloudShell](https://docs.aws.amazon.com/cloudshell/latest/userguide/welcome.html)
   or EC2 provides a controlled, auditable environment for building container
   images
-
 - The API server process runs as a non-root user, reducing the impact if it is
   compromised
 
@@ -48,10 +46,8 @@ Jump to:
 
 - Security group rules reference named security groups rather than ranges of
   numeric addresses; only known pairs of resources can communicate
-
 - [PrivateLink endpoints](https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-access-aws-services.html)
   keep AWS API traffic off the public Internet
-
 - No public Internet access from private subnets
 
 </details>
@@ -61,15 +57,12 @@ Jump to:
 
 - Getting container image build properties from Terraform&nbsp;variables allows
   separate versions for development, testing and blue/green deployment
-
 - [AWS&nbsp;IP&nbsp;Address&nbsp;Manager&nbsp;(IPAM)](https://docs.aws.amazon.com/vpc/latest/ipam/what-it-is-ipam.html)
   takes a single address range input and divides the space flexibly,
   accommodating multiple environments of different sizes
-
 - An AWS Lambda function test event in the
   [shared&nbsp;registry](https://builder.aws.com/content/33YuiyDjF5jHyRUhjoma00QwwbM/cloudformation-and-terraform-for-realistic-shareable-aws-lambda-test-events)
   allows realistic, centralized testing
-
 - Amazon Linux on EC2 provides a consistent, central build platform
 
 </details>
@@ -78,18 +71,15 @@ Jump to:
   <summary>Small Docker container image</summary>
 
 - [Docker&nbsp;cache&nbsp;mounts](https://docs.docker.com/build/cache/optimize/#use-cache-mounts)
-  prevent image bloat _and_ avoid slow re-downloading on re-build (other people
-  needlessly disable or empty operating system package and Python module
+  prevent image bloat _and_ avoid slow re-downloading on re-build (others
+  needlessly disable or clear operating system package and Python module
   caches)
-
 - Temporary software is installed, used and removed in the same step, avoiding
   extra layers _and_
   [multi&#8209;stage&nbsp;build](https://docs.docker.com/build/building/multi-stage#use-multi-stage-builds)
   complexity
-
-- Temporary Python modules are uninstalled, just like temporary operating
-  system packages (other people leave `pip`&nbsp;, which will never be used
-  again!)
+- Temporary Python modules are removed, just like temporary operating system
+  packages (others retain `pip` even though it will never be used again)
 
 </details>
 
@@ -100,10 +90,8 @@ Jump to:
   in a standard
   [OpenAPI specification](https://learn.openapis.org/introduction.html#api-description-using-the-oas);
   API code need only process requests
-
 - A managed container service (ECS) and a serverless computing option (Fargate)
   reduce infrastructure-as-code lines and eliminate scripts
-
 - The
   [AWS&nbsp;event&nbsp;source&nbsp;mapping](https://docs.aws.amazon.com/lambda/latest/dg/with-msk-configure.html#msk-esm-overview)
   interacts with Kafka, so that the consumer Lambda function need only process
@@ -287,8 +275,13 @@ Jump to:
 
     ```
 
+    ```shell
+    terraform apply
+
+    ```
+
     <details>
-      <summary>About this two-stage process...</summary>
+      <summary>Why two stages?</summary>
 
     <br/>
 
@@ -296,15 +289,16 @@ Jump to:
     [dynamic-subnets](https://registry.terraform.io/modules/cloudposse/dynamic-subnets/aws/latest)
     module isn't dynamic enough to co-operate with
     [AWS&nbsp;IP&nbsp;Address&nbsp;Manager&nbsp;(IPAM)](https://docs.aws.amazon.com/vpc/latest/ipam/what-it-is-ipam.html),
-    so you have to let IPAM finalize subnet IP address range allocations
-    beforehand.
+    so you have _finalize_ the IPAM subnet IP address range allocations before
+    calling the module.
+
+    Creating the IPAM resource planning pool for VPC private IP addresses can
+    take as long as 30&nbsp;minutes, as noted in the Terraform documentation
+    for the
+    [aws_vpc_ipam_pool](https://registry.terraform.io/providers/hashicorp/aws/6.33.0/docs/resources/vpc_ipam_pool)
+    resource.
 
     </details>
-
-    ```shell
-    terraform apply
-
-    ```
 
     <details>
       <summary>In case of "already exists" errors...</summary>
@@ -567,20 +561,18 @@ Jump to:
 
     - Harmless "Invalid target address" errors will occur in some
       configurations.
-
     - A _newly-created_ ECR repository is deleted along with any images (unless
       you explicitly removed it from Terraform state), but if you _imported_
       your previously-created ECR repository and it contains images, you will
       receive a "**RepositoryNotEmptyException**". Either delete the images or
       remove the ECR repository from Terraform state. Run
       `terraform apply -destroy` again.
-
+    - Deleting IP Address Manager (IPAM) pools takes a long time; expect
+      30&nbsp;minutes if `create_vpc` was `true`&nbsp;.
     - Deleting a VPC Lambda function takes a long time because of the network
       association; expect 30&nbsp;minutes if `enable_kafka` was `true`&nbsp;.
-
     - Expect an error message about retiring KMS encryption key grants
       (harmless, in this case).
-
     - If you cancel and re-run `terraform apply -destroy`&nbsp;, a bug in
       CloudPosse's `dynamic-subnets` module might cause a "value depends on
       resource attributes that cannot be determined until apply" error. For a
