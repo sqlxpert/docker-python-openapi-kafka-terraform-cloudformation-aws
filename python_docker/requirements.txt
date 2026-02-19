@@ -2,8 +2,8 @@
 # github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws
 # GPLv3, Copyright Paul Marcelin
 
-connexion==3.2.0
+connexion==3.3.0
 aws-msk-iam-sasl-signer-python==1.0.2
-kafka-python==2.2.15
-uvicorn==0.37.0
-gunicorn==23.0.0
+kafka-python==2.3.0
+uvicorn==0.41.0
+gunicorn==25.1.0

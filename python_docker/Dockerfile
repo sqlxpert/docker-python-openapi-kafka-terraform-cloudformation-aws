@@ -4,8 +4,8 @@
 
 # Defaults required:
 # https://docs.docker.com/reference/build-checks/invalid-default-arg-in-from
-ARG AMAZON_LINUX_BASE_VERSION='2023.9.20251105.0'
-ARG AMAZON_LINUX_BASE_DIGEST='sha256:5ea333708360add6cc16ecec2569b8b75b6ee862528217bac65ad80752f4129b'
+ARG AMAZON_LINUX_BASE_VERSION='2023.10.20260216.1'
+ARG AMAZON_LINUX_BASE_DIGEST='sha256:c1f446f8bb112bddb4ae73064986e3e9e1bce24c720047d21b63970101c89369'
 FROM "amazonlinux:${AMAZON_LINUX_BASE_VERSION}@${AMAZON_LINUX_BASE_DIGEST}"
 
 ARG AMAZON_LINUX_BASE_VERSION
@@ -16,7 +16,7 @@ LABEL org.opencontainers.image.base.digest="${AMAZON_LINUX_BASE_DIGEST}"
 LABEL org.opencontainers.image.documentation="https://github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws"
 
 LABEL org.opencontainers.image.title="Hello world API"
-LABEL org.opencontainers.image.description="Uses Python 3.12, OpenAPI 3.0, Connexion, Uvicorn workers, Gunicorn"
+LABEL org.opencontainers.image.description="Uses Python 3.13, OpenAPI 3.0, Connexion, Uvicorn workers, Gunicorn"
 LABEL org.opencontainers.image.authors="Paul Marcelin"
 LABEL org.opencontainers.image.vendor="Paul Marcelin"
 LABEL org.opencontainers.image.licenses="GPL-3.0-only"
@@ -31,7 +31,7 @@ RUN \
     --assumeyes \
     --setopt=install_weak_deps=False \
     --nodocs \
-    python3.12 \
+    python3.13 \
     coreutils-single \
     util-linux \
     shadow-utils \
@@ -50,7 +50,7 @@ USER hello_api
 WORKDIR /hello_api
 
 ENV VIRTUAL_ENV="/hello_api/python_venv"
-RUN python3.12 -m venv "${VIRTUAL_ENV}"
+RUN python3.13 -m venv "${VIRTUAL_ENV}"
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 ###############################################################################
@@ -61,7 +61,7 @@ ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 RUN \
   --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
   --mount=type=cache,target=.cache/pip,uid=1011,gid=1011 \
-  pip install --upgrade pip==25.3 \
+  pip install --upgrade pip==26.0.1 \
   && pip install --requirement /tmp/requirements.txt \
   && pip uninstall --yes pip
 
