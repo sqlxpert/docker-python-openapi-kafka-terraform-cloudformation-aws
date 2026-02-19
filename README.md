@@ -327,12 +327,15 @@ Jump to:
     Docker container image, then build it.
 
     ```shell
-    AMAZON_LINUX_BASE_VERSION=$(terraform output -raw 'amazon_linux_base_version')
-    AMAZON_LINUX_BASE_DIGEST=$(terraform output -raw 'amazon_linux_base_digest')
+    BASE_AMAZONLINUX_REGISTRY_PATH='public.ecr.aws'
+    BASE_AMAZONLINUX_TAG=$(terraform output -raw 'base_amazonlinux_tag')
+    BASE_AMAZONLINUX_DIGEST=$(terraform output -raw 'base_amazonlinux_digest')
     AWS_ECR_REGISTRY_REGION=$(terraform output -raw 'hello_api_aws_ecr_registry_region')
     AWS_ECR_REGISTRY_URI=$(terraform output -raw 'hello_api_aws_ecr_registry_uri')
     AWS_ECR_REPOSITORY_URL=$(terraform output -raw 'hello_api_aws_ecr_repository_url')
     HELLO_API_AWS_ECR_IMAGE_TAG=$(terraform output -raw 'hello_api_aws_ecr_image_tag')
+
+    aws ecr-public get-login-password --region 'us-east-1' | sudo docker login --username 'AWS' --password-stdin "${BASE_AMAZONLINUX_REGISTRY_PATH}"
 
     aws ecr get-login-password --region "${AWS_ECR_REGISTRY_REGION}" | sudo docker login --username 'AWS' --password-stdin "${AWS_ECR_REGISTRY_URI}"
 
@@ -341,7 +344,7 @@ Jump to:
     ```
 
     ```shell
-    sudo docker buildx build --build-arg AMAZON_LINUX_BASE_VERSION="${AMAZON_LINUX_BASE_VERSION}" --build-arg AMAZON_LINUX_BASE_DIGEST="${AMAZON_LINUX_BASE_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_AWS_ECR_IMAGE_TAG}" --output 'type=docker' .
+    sudo docker buildx build --build-arg BASE_AMAZONLINUX_REGISTRY_PATH="${BASE_AMAZONLINUX_REGISTRY_PATH}" --build-arg BASE_AMAZONLINUX_TAG="${BASE_AMAZONLINUX_TAG}" --build-arg BASE_AMAZONLINUX_DIGEST="${BASE_AMAZONLINUX_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_AWS_ECR_IMAGE_TAG}" --output 'type=docker' .
 
     ```
 

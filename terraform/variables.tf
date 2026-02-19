@@ -130,16 +130,16 @@ variable "create_lambda_testevent_schema_registry" {
 # https://github.com/hashicorp/terraform-provider-aws/issues/41718
 # https://registry.terraform.io/providers/hashicorp/aws/6.19.0/docs/data-sources/ecrpublic_images
 
-variable "amazon_linux_base_version" {
+variable "base_amazonlinux_tag" {
   type        = string
-  description = "The version of the Amazon Linux base image. See docs.aws.amazon.com/linux/al2023/ug/base-container.html , gallery.ecr.aws/amazonlinux/amazonlinux , and github.com/amazonlinux/container-images/blob/al2023/Dockerfile"
+  description = "Version of the Amazon Linux base image. See docs.aws.amazon.com/linux/al2023/ug/base-container.html and gallery.ecr.aws/amazonlinux/amazonlinux"
 
   default = "2023.10.20260216.1"
 }
 
-variable "amazon_linux_base_digest" {
+variable "base_amazonlinux_digest" {
   type        = string
-  description = "The digest of the Amazon Linux base image. See github.com/amazonlinux/container-images/blob/al2023/Dockerfile"
+  description = "Digest of the Amazon Linux base image"
 
-  default = "sha256:c1f446f8bb112bddb4ae73064986e3e9e1bce24c720047d21b63970101c89369"
+  default = "sha256:dfa14233aa5e9f951074312290a1d217272cd1a04babdf1f87a68ea27d6eeac6"
 }

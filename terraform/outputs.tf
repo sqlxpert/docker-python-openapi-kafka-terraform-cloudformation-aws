@@ -4,14 +4,14 @@
 
 output "hello_api_aws_ecr_registry_region" {
   value       = aws_ecr_repository.hello[local.ecr_repository_name].region
-  description = "AWS region code for hello_api resources"
+  description = "AWS region code for hello_api Elastic Container Registry"
   sensitive   = false
   ephemeral   = false
 }
 
 output "hello_api_aws_ecr_registry_uri" {
   value       = split("/", aws_ecr_repository.hello[local.ecr_repository_name].repository_url)[0]
-  description = "URI of registry containing hello_api Elastic Container Registry repository"
+  description = "URI of hello_api Elastic Container Registry"
   sensitive   = false
   ephemeral   = false
 }
@@ -37,16 +37,16 @@ output "hello_api_load_balander_domain_name" {
   ephemeral   = false
 }
 
-output "amazon_linux_base_version" {
-  value       = var.amazon_linux_base_version
-  description = "The version of the Amazon Linux base image. See https://docs.aws.amazon.com/linux/al2023/ug/base-container.html , https://gallery.ecr.aws/amazonlinux/amazonlinux , and https://github.com/amazonlinux/container-images/blob/al2023/Dockerfile"
+output "base_amazonlinux_tag" {
+  value       = var.base_amazonlinux_tag
+  description = "Version of the Amazon Linux base image. See https://docs.aws.amazon.com/linux/al2023/ug/base-container.html , https://gallery.ecr.aws/amazonlinux/amazonlinux , and https://github.com/amazonlinux/container-images/blob/al2023/Dockerfile"
   sensitive   = false
   ephemeral   = false
 }
 
-output "amazon_linux_base_digest" {
-  value       = var.amazon_linux_base_digest
-  description = "The digest of the Amazon Linux base image. See https://github.com/amazonlinux/container-images/blob/al2023/Dockerfile"
+output "base_amazonlinux_digest" {
+  value       = var.base_amazonlinux_digest
+  description = "Digest of the Amazon Linux base image. See https://github.com/amazonlinux/container-images/blob/al2023/Dockerfile"
   sensitive   = false
   ephemeral   = false
 }
