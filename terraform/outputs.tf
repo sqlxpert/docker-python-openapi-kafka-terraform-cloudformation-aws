@@ -23,8 +23,8 @@ output "hello_api_aws_ecr_repository_url" {
   ephemeral   = false
 }
 
-output "hello_api_aws_ecr_image_tag" {
-  value       = var.hello_api_aws_ecr_image_tag
+output "hello_api_image_tag" {
+  value       = var.hello_api_image_tag
   description = "Version tag of hello_api image in Elastic Container Registry repository"
   sensitive   = false
   ephemeral   = false

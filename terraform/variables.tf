@@ -44,7 +44,7 @@ variable "create_aws_ecr_repository" {
   default = true
 }
 
-variable "hello_api_aws_ecr_image_tag" {
+variable "hello_api_image_tag" {
   type        = string
   description = "Version tag of the hello_api image in the Elastic Container Registry repository"
 
