@@ -198,7 +198,7 @@ locals {
         "ssmmessages" = ["ecs_task"]
       } : {},
 
-      (var.enable_kafka && var.msk_provisioned_poll) ? {
+      (var.enable_kafka && !var.msk_provisioned_poll) ? {
         "lambda" = ["msk_lambda_function"]
         "sts"    = ["msk_lambda_function"]
       } : {},

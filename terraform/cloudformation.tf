@@ -90,7 +90,7 @@ resource "aws_cloudformation_stack" "kafka_consumer" {
     # Terraform AWS provider does not convert to CloudFormation List types!
     LambdaFnMaximumRetryAttempts             = 2
     LambdaFnMaximumRecordAgeInSeconds        = 120
-    LambdaFnEventSourceMappingSystemLogLevel = "WARN"
+    LambdaFnEventSourceMappingSystemLogLevel = "INFO"
 
     LogLevel = "INFO"
 
