@@ -85,6 +85,12 @@ resource "aws_cloudformation_stack" "kafka_consumer" {
     MskClusterArn   = aws_msk_serverless_cluster.hello_api[0].arn
     MskClusterTopic = var.kafka_topic
 
+    LambdaFnProvisionedPoll                  = var.msk_provisioned_poll
+    LambdaFnProvisionedPollersMinimumMaximum = "1,1"
+    LambdaFnMaximumRetryAttempts             = 2
+    LambdaFnMaximumRecordAgeInSeconds        = 120
+    LambdaFnEventSourceMappingSystemLogLevel = "WARN"
+
     LogLevel = "INFO"
 
     # I am not initially supporting KMS encryption for this VPC Lambda

@@ -129,17 +129,56 @@ Parameters:
       case of time-out errors.
     Default: 30
 
-  LogRetentionInDays:
+  LambdaFnProvisionedPoll:
+    Type: String
+    Description: >-
+      Whether to configure provisioned polling for the Lambda function's event
+      source mapping, at a higher cost. If this is set to false, some features
+      will not be available. See
+      https://docs.aws.amazon.com/lambda/latest/dg/kafka-scaling-modes.html#services-kafka-advanced-features
+    Default: "false"
+    AllowedValues:
+      - "false"
+      - "true"
+
+  LambdaFnProvisionedPollersMinimumMaximum:
+    Type: List<Number>
+    Description: >-
+      The minimum and maximum number of provisioned pollers, for the Lambda
+      function's event source mapping, separated by a comma.
+    Default: "1,1"
+
+  LambdaFnMaximumRetryAttempts:
     Type: Number
     Description: >-
-      How many days to keep log entries. See retentionInDays in
-      https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutRetentionPolicy.html#API_PutRetentionPolicy_RequestParameters
-    Default: 3
+      How many times to try re-processing a Kafka message after an error.
+      Applies only if provisioned polling is configured.
+    Default: 2
+
+  LambdaFnMaximumRecordAgeInSeconds:
+    Type: Number
+    Description: >-
+      When to stop trying to re-process a Kafka message after an error, and
+      discard it. Applies only if provisioned polling is configured.
+    Default: 120
+
+  LambdaFnEventSourceMappingSystemLogLevel:
+    Type: String
+    Description: >-
+      The level of detail of Lambda event source mapping (Kafka) messages in
+      the log. See
+      https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html#esm-logging-overview
+    Default: INFO
+    AllowedValues:
+      - WARN
+      - INFO
+      - DEBUG
 
   LogLevel:
     Type: String
     Description: >-
-      The level of detail in the log. See
+      The level of detail of log messages from the Lambda runtime and Lambda
+      function code. See
       https://docs.python.org/3/library/logging.html#levels
     Default: ERROR
     AllowedValues:
@@ -149,6 +188,13 @@ Parameters:
       - INFO
       - DEBUG
       - NOTSET
+
+  LogRetentionInDays:
+    Type: Number
+    Description: >-
+      How many days to keep log entries. See retentionInDays in
+      https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutRetentionPolicy.html#API_PutRetentionPolicy_RequestParameters
+    Default: 3
 
   CloudWatchLogsKmsKey:
     Type: String
@@ -199,6 +245,14 @@ Metadata:
           - LambdaFnMemoryMB
           - LambdaFnTimeoutSecs
       - Label:
+          default: Lambda function provisioned polling
+        Parameters:
+          - LambdaFnProvisionedPoll
+          - LambdaFnProvisionedPollersMinimumMaximum
+          - LambdaFnMaximumRetryAttempts
+          - LambdaFnMaximumRecordAgeInSeconds
+          - LambdaFnEventSourceMappingSystemLogLevel
+      - Label:
           default: CloudWatch log for AWS Lambda function
         Parameters:
           - LogRetentionInDays
@@ -235,10 +289,20 @@ Metadata:
         default: Megabytes of memory
       LambdaFnTimeoutSecs:
         default: Seconds before timeout
+      LambdaFnProvisionedPoll:
+        default: Provisioned polling?
+      LambdaFnProvisionedPollersMinimumMaximum:
+        default: Minimum, maximum provisioned pollers
+      LambdaFnMaximumRetryAttempts:
+        default: Maximum retries
+      LambdaFnMaximumRecordAgeInSeconds:
+        default: Maximum record age (seconds)
+      LambdaFnEventSourceMappingSystemLogLevel:
+        default: Event source mapping log message detail
+      LogLevel:
+        default: Lambda function log message detail
       LogRetentionInDays:
         default: Days before deleting
-      LogLevel:
-        default: Level of detail
       CloudWatchLogsKmsKey:
         default: KMS encryption key
 
@@ -279,6 +343,9 @@ Conditions:
 
   LambdaFnReservedConcurrentExecutionsOff:
     !Equals [ !Ref LambdaFnReservedConcurrentExecutions, -1 ]
+
+  LambdaFnProvisionedPollOn:
+    !Equals [ !Ref LambdaFnProvisionedPoll, "true" ]
 
   CloudWatchLogsKmsKeyBlank: !Equals [ !Ref CloudWatchLogsKmsKey, "" ]
 
@@ -620,27 +687,37 @@ Resources:
       BatchSize: !Ref LambdaFnBatchSize
       MaximumBatchingWindowInSeconds: 30
 
-      # Future: These features require provisioned mode, not on-demand mode.
-      # https://docs.aws.amazon.com/lambda/latest/dg/kafka-scaling-modes.html#services-kafka-advanced-features
-      # https://aws.amazon.com/about-aws/whats-new/2026/01/aws-Lambda-observability-for-kafka-esm/
-      # https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html
-      # https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
-      # https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-lambda-eventsourcemapping.html
-
-      # ProvisionedPollerConfig:
-      #   MaximumPollers: 1
-      #   MinimumPollers: 1
-      # BisectBatchOnFunctionError: true
-      # FunctionResponseTypes: [ ReportBatchItemFailures ]
-      # MaximumRetryAttempts: 2
-      # MaximumRecordAgeInSeconds: 120
-      # MetricsConfig:
-      #   Metrics:
-      #     - EventCount
-      #     - ErrorCount
-      #     - KafkaMetrics
-      # LoggingConfig:
-      #   SystemLogLevel: INFO
+      ProvisionedPollerConfig: !If
+        - LambdaFnProvisionedPollOn
+        - MinimumPollers:
+            !Select [ "0", !Ref LambdaFnProvisionedPollersMinimumMaximum ]
+          MaximumPollers:
+            !Select [ "1", !Ref LambdaFnProvisionedPollersMinimumMaximum ]
+        - !Ref AWS::NoValue
+      FunctionResponseTypes: !If
+        - LambdaFnProvisionedPollOn
+        - [ ReportBatchItemFailures ]
+        - !Ref AWS::NoValue
+      BisectBatchOnFunctionError: !Ref LambdaFnProvisionedPoll
+      MaximumRetryAttempts: !If
+        - LambdaFnProvisionedPollOn
+        - !Ref LambdaFnMaximumRetryAttempts
+        - !Ref AWS::NoValue
+      MaximumRecordAgeInSeconds: !If
+        - LambdaFnProvisionedPollOn
+        - !Ref LambdaFnMaximumRecordAgeInSeconds
+        - !Ref AWS::NoValue
+      MetricsConfig: !If
+        - LambdaFnProvisionedPollOn
+        - Metrics:
+            - EventCount
+            - ErrorCount
+            - KafkaMetrics
+        - !Ref AWS::NoValue
+      LoggingConfig: !If
+        - LambdaFnProvisionedPollOn
+        - { SystemLogLevel: !Ref LambdaFnEventSourceMappingSystemLogLevel }
+        - !Ref AWS::NoValue
 
       DestinationConfig:
         OnFailure:

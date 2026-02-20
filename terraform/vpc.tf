@@ -192,10 +192,16 @@ locals {
         "ecr.dkr" = ["ecs_task"]
         "logs"    = ["ecs_task", "lambda_function"]
         "sqs"     = ["lambda_function"]
-        "lambda"  = ["msk_lambda_function"]
-        "sts"     = ["msk_lambda_function"]
       },
-      var.enable_ecs_exec ? { "ssmmessages" = ["ecs_task"] } : {},
+
+      var.enable_ecs_exec ? {
+        "ssmmessages" = ["ecs_task"]
+      } : {},
+
+      (var.enable_kafka && var.msk_provisioned_poll) ? {
+        "lambda" = ["msk_lambda_function"]
+        "sts"    = ["msk_lambda_function"]
+      } : {},
     )
   }
 
