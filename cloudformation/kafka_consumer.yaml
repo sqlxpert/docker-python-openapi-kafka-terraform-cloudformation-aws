@@ -619,11 +619,14 @@ Resources:
       StartingPosition: LATEST
       BatchSize: !Ref LambdaFnBatchSize
       MaximumBatchingWindowInSeconds: 30
-      FunctionName: !GetAtt LambdaFn.Arn
       FunctionResponseTypes: [ ReportBatchItemFailures ]
       DestinationConfig:
         OnFailure:
           Destination: !GetAtt ErrorQueue.Arn
+      MetricsConfig:
+        Metrics:
+          - EventCount
+      FunctionName: !GetAtt LambdaFn.Arn
       Enabled: !Ref Enable
 
   LambdaFn:
