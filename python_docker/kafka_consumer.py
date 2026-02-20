@@ -36,24 +36,32 @@ def lambda_handler(lambda_event, context):  # pylint: disable=unused-argument
     """Log MSK messages
     """
     log("LAMBDA_EVENT", lambda_event, INFO)
+    batch_item_failures = []
 
-    # topic_partition (form: "topic-partition") is for future use
-    # pylint:disable=unused-variable
     for topic_partition, records in lambda_event.get("records", []).items():
-        # pylint:enable=unused-variable
-
         for record in records:
-
             result = None
             log_level = INFO
+            offset = ""
+            retry = True  # For demonstration only
 
             try:
                 result = json_loads(base64_b64decode(
                     record.get("value", "")
                 ).decode("utf-8"))
+                offset = record["offset"]
+                retry = False
             except Exception as misc_exception:  # pylint: disable=broad-exception-caught
                 result = misc_exception
                 log_level = ERROR
+
+            if retry:
+                batch_item_failures.append({
+                    "itemIdentifier": {
+                        "partition": topic_partition,
+                        "offset": offset,
+                    }
+                })
 
             log("RECORD", record, log_level)
             log(
@@ -61,3 +69,6 @@ def lambda_handler(lambda_event, context):  # pylint: disable=unused-argument
                 result,
                 log_level
             )
+
+    # https://docs.aws.amazon.com/lambda/latest/dg/kafka-retry-configurations.html#kafka-partial-batch-response
+    return {"batchItemFailures": batch_item_failures, }
