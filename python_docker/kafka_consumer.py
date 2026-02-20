@@ -71,4 +71,5 @@ def lambda_handler(lambda_event, context):  # pylint: disable=unused-argument
             )
 
     # https://docs.aws.amazon.com/lambda/latest/dg/kafka-retry-configurations.html#kafka-partial-batch-response
+    # Ignored unless ReportBatchItemFailures is enabled in CloudFormation!
     return {"batchItemFailures": batch_item_failures, }
