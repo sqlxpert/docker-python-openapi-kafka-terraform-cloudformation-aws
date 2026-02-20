@@ -619,13 +619,32 @@ Resources:
       StartingPosition: LATEST
       BatchSize: !Ref LambdaFnBatchSize
       MaximumBatchingWindowInSeconds: 30
-      FunctionResponseTypes: [ ReportBatchItemFailures ]
+
+      # Future: These features require provisioned mode, not on-demand mode.
+      # https://docs.aws.amazon.com/lambda/latest/dg/kafka-scaling-modes.html#services-kafka-advanced-features
+      # https://aws.amazon.com/about-aws/whats-new/2026/01/aws-Lambda-observability-for-kafka-esm/
+      # https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html
+      # https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
+      # https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-lambda-eventsourcemapping.html
+
+      # ProvisionedPollerConfig:
+      #   MaximumPollers: 1
+      #   MinimumPollers: 1
+      # BisectBatchOnFunctionError: true
+      # FunctionResponseTypes: [ ReportBatchItemFailures ]
+      # MaximumRetryAttempts: 2
+      # MaximumRecordAgeInSeconds: 120
+      # MetricsConfig:
+      #   Metrics:
+      #     - EventCount
+      #     - ErrorCount
+      #     - KafkaMetrics
+      # LoggingConfig:
+      #   SystemLogLevel: INFO
+
       DestinationConfig:
         OnFailure:
           Destination: !GetAtt ErrorQueue.Arn
-      MetricsConfig:
-        Metrics:
-          - EventCount
       FunctionName: !GetAtt LambdaFn.Arn
       Enabled: !Ref Enable
 

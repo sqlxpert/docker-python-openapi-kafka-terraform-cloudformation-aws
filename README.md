@@ -536,15 +536,19 @@ Jump to:
     [HelloApiKafkaConsumer](https://console.aws.amazon.com/cloudwatch/home#logsV2:log-groups$3FlogGroupNameFilter$3DHelloApiKafkaConsumer-LambdaFnLogGrp-)
     CloudWatch log group.
 
-14. If you wish to continue experimenting, set the `enable_kafka`&nbsp;,
-    `hello_api_aws_ecs_service_desired_count_tasks` and `create_vpc` variables
-    to their cost-saving values and run `terraform apply`&nbsp;.
+14. If you wish to work on the code, you can save money by temporarily deleting
+    expensive AWS resources. The order of the following changes matters. Run
+    `terraform apply` after changing each variable.
+
+    - `hello_api_aws_ecs_service_desired_count_tasks` &rarr; `0`
+    - `enable_kafka` &rarr; `false`
+    - `create_vpc` &rarr; `false`
 
     When you are finished, delete all resources; the minimum configuration
     carries a cost.
 
     If you will be using the container image again soon, you can preserve the
-    Elastic Container Registry image repository (at a cost) by removing it from
+    Elastic Container Registry repository (at a cost) by removing it from
     Terraform state.
 
     ```shell
