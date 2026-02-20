@@ -86,7 +86,8 @@ resource "aws_cloudformation_stack" "kafka_consumer" {
     MskClusterTopic = var.kafka_topic
 
     LambdaFnProvisionedPoll                  = var.msk_provisioned_poll
-    LambdaFnProvisionedPollersMinimumMaximum = "1,1"
+    LambdaFnProvisionedPollersMinimumMaximum = join(",", ["1", "1"])
+    # Terraform AWS provider does not convert to CloudFormation List types!
     LambdaFnMaximumRetryAttempts             = 2
     LambdaFnMaximumRecordAgeInSeconds        = 120
     LambdaFnEventSourceMappingSystemLogLevel = "WARN"

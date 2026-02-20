@@ -165,8 +165,8 @@ Parameters:
   LambdaFnEventSourceMappingSystemLogLevel:
     Type: String
     Description: >-
-      The level of detail of Lambda event source mapping (Kafka) messages in
-      the log. See
+      The level of detail of log messages from the Lambda event source mapping
+      (Kafka). See
       https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html#esm-logging-overview
     Default: INFO
     AllowedValues:
