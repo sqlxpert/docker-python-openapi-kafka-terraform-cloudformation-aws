@@ -437,16 +437,9 @@ Resources:
                           - !Select [ 1, !Split [ ":cluster/", !Ref MskClusterArn ] ]
                           - "*"
 
-        # https://docs.aws.amazon.com/lambda/latest/dg/with-msk-on-failure.html
-        - PolicyName: OnFailureTargetSqsQueue
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - sqs:SendMessage
-                Resource: !GetAtt ErrorQueue.Arn
+        # https://docs.aws.amazon.com/lambda/latest/dg/kafka-on-failure.html
         # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-key-management.html#receive-from-encrypted-queue#send-to-encrypted-queue
+        # See also ErrorQueuePol
         - Fn::If:
             - SqsKmsKeyCustom
             - PolicyName: KmsForOnFailureTargetSqsQueue
@@ -474,19 +467,24 @@ Resources:
             Resource: "*"
             Condition:
               Bool: { aws:SecureTransport: "false" }
-          - Effect: Allow
+          - Sid: !If
+              - SqsKmsKeyCustom
+              - SourceLambdaFnNoteRoleNeedsSqsKmsEncryptAndGenerateDataKey
+              - SourceLambdaFn
+            # https://docs.aws.amazon.com/lambda/latest/dg/kafka-on-failure.html
+            Effect: Allow
             Principal: "*"
-            Action: sqs:GetQueueAttributes
+            Action: sqs:SendMessage
             Resource: "*"
-            # I removed the ExclusiveSource statement because the MSK Lambda
-            # event source mapping requires that sqs:SendMessage be allowed in
-            # in the Lambda function execution role's policies rather than in
-            # the queue policy, and mentioning the queue in one and the role in
-            # the other would create a circular dependency. For now, and unlike
-            # other SQS queues I've created (such as the "Do" operation queue
-            # in lights-off-aws), this queue isn't driving further processing,
-            # so messages from sources not blocked in the queue policy wouldn't
-            # pose a security risk.
+            Condition:
+              ArnEquals: { aws:PrincipalArn: !GetAtt LambdaFnRole.Arn }
+          - Sid: ExclusiveSource
+            Effect: Deny
+            Principal: "*"
+            Action: sqs:SendMessage
+            Resource: "*"
+            Condition:
+              ArnNotEquals: { aws:PrincipalArn: !GetAtt LambdaFnRole.Arn }
 
   ErrorQueue:
     Type: AWS::SQS::Queue
@@ -611,7 +609,9 @@ Resources:
 
   MskClusterToLambdaFnMapping:
     Type: AWS::Lambda::EventSourceMapping
-    DependsOn: LambdaFnInvokeLambdaPerm
+    DependsOn:
+      - LambdaFnInvokeLambdaPerm
+      - ErrorQueuePol
     Properties:
       EventSourceArn: !Ref MskClusterArn
       Topics:
@@ -619,10 +619,33 @@ Resources:
       StartingPosition: LATEST
       BatchSize: !Ref LambdaFnBatchSize
       MaximumBatchingWindowInSeconds: 30
-      FunctionName: !GetAtt LambdaFn.Arn
+
+      # Future: These features require provisioned mode, not on-demand mode.
+      # https://docs.aws.amazon.com/lambda/latest/dg/kafka-scaling-modes.html#services-kafka-advanced-features
+      # https://aws.amazon.com/about-aws/whats-new/2026/01/aws-Lambda-observability-for-kafka-esm/
+      # https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html
+      # https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
+      # https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-lambda-eventsourcemapping.html
+
+      # ProvisionedPollerConfig:
+      #   MaximumPollers: 1
+      #   MinimumPollers: 1
+      # BisectBatchOnFunctionError: true
+      # FunctionResponseTypes: [ ReportBatchItemFailures ]
+      # MaximumRetryAttempts: 2
+      # MaximumRecordAgeInSeconds: 120
+      # MetricsConfig:
+      #   Metrics:
+      #     - EventCount
+      #     - ErrorCount
+      #     - KafkaMetrics
+      # LoggingConfig:
+      #   SystemLogLevel: INFO
+
       DestinationConfig:
         OnFailure:
           Destination: !GetAtt ErrorQueue.Arn
+      FunctionName: !GetAtt LambdaFn.Arn
       Enabled: !Ref Enable
 
   LambdaFn:
@@ -648,7 +671,7 @@ Resources:
       TracingConfig: { Mode: PassThrough }
       Architectures:
         - arm64
-      Runtime: python3.12
+      Runtime: python3.13
       Handler: index.lambda_handler
       Code:
         ZipFile: |
@@ -690,24 +713,32 @@ Resources:
               """Log MSK messages
               """
               log("LAMBDA_EVENT", lambda_event, INFO)
+              batch_item_failures = []
 
-              # topic_partition (form: "topic-partition") is for future use
-              # pylint:disable=unused-variable
               for topic_partition, records in lambda_event.get("records", []).items():
-                  # pylint:enable=unused-variable
-
                   for record in records:
-
                       result = None
                       log_level = INFO
+                      offset = ""
+                      retry = True  # For demonstration only
 
                       try:
                           result = json_loads(base64_b64decode(
                               record.get("value", "")
                           ).decode("utf-8"))
+                          offset = record["offset"]
+                          retry = False
                       except Exception as misc_exception:  # pylint: disable=broad-exception-caught
                           result = misc_exception
                           log_level = ERROR
+
+                      if retry:
+                          batch_item_failures.append({
+                              "itemIdentifier": {
+                                  "partition": topic_partition,
+                                  "offset": offset,
+                              }
+                          })
 
                       log("RECORD", record, log_level)
                       log(
@@ -715,3 +746,7 @@ Resources:
                           result,
                           log_level
                       )
+
+              # https://docs.aws.amazon.com/lambda/latest/dg/kafka-retry-configurations.html#kafka-partial-batch-response
+              # Ignored unless ReportBatchItemFailures is enabled in CloudFormation!
+              return {"batchItemFailures": batch_item_failures, }
