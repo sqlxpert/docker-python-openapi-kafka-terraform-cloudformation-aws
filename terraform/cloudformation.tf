@@ -66,6 +66,9 @@ resource "aws_cloudformation_stack" "kafka_consumer" {
 
   depends_on = [
     aws_schemas_registry.lambda_testevent,
+    aws_vpc_endpoint.hello,
+    aws_vpc_security_group_egress_rule.hello,
+    aws_vpc_security_group_ingress_rule.hello,
   ]
 
   parameters = {
@@ -84,6 +87,13 @@ resource "aws_cloudformation_stack" "kafka_consumer" {
 
     MskClusterArn   = aws_msk_serverless_cluster.hello_api[0].arn
     MskClusterTopic = var.kafka_topic
+
+    LambdaFnProvisionedPoll                  = var.msk_provisioned_poll
+    LambdaFnProvisionedPollersMinimumMaximum = join(",", ["1", "1"])
+    # Terraform AWS provider does not convert to CloudFormation List types!
+    LambdaFnMaximumRetryAttempts             = 2
+    LambdaFnMaximumRecordAgeInSeconds        = 120
+    LambdaFnEventSourceMappingSystemLogLevel = "INFO"
 
     LogLevel = "INFO"
 

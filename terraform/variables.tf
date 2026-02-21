@@ -72,6 +72,13 @@ variable "kafka_topic" {
   default = "events"
 }
 
+variable "msk_provisioned_poll" {
+  type        = bool
+  description = "Whether to configure provisioned polling for the Kafka consumer Lambda function's event source mapping, at a higher cost. If this is set to false , some features will not be available. Do not change this variable while kafka_enabled is true . See https://docs.aws.amazon.com/lambda/latest/dg/kafka-scaling-modes.html#services-kafka-advanced-features ."
+
+  default = false
+}
+
 variable "hello_api_aws_ecs_service_desired_count_tasks" {
   type        = number
   description = "Number of hello_api Elastic Container Service tasks desired. Reduce to 0 to pause the API. You must set this to 0 if create_vpc is false ."
@@ -132,7 +139,7 @@ variable "create_lambda_testevent_schema_registry" {
 
 variable "base_amazonlinux_tag" {
   type        = string
-  description = "Version of the Amazon Linux base image. See docs.aws.amazon.com/linux/al2023/ug/base-container.html and gallery.ecr.aws/amazonlinux/amazonlinux"
+  description = "Version of the Amazon Linux base image. See docs.aws.amazon.com/linux/al2023/ug/base-container.html and gallery.ecr.aws/amazonlinux/amazonlinux ."
 
   default = "2023.10.20260216.1"
 }

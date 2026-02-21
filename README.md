@@ -510,9 +510,16 @@ Jump to:
 
 12. If you don't wish use Kafka, skip to Step&nbsp;14.
 
-    If you wish to enable Kafka, set `enable_kafka = true`&nbsp; and run
-    `terraform apply`&nbsp;. AWS MSK is expensive, so enable Kafka only after
-    confirming that the rest of the system is working for you.
+    AWS MSK is expensive, so enable Kafka only after confirming that the rest
+    of the system is working for you.
+
+    Before proceeding, consider whether you need the extra features that
+    [provisioned polling](https://docs.aws.amazon.com/lambda/latest/dg/kafka-scaling-modes.html)
+    provides, and whether you accept the extra cost. If yes, change
+    `msk_provisioned_poll` to `true`&nbsp;.
+
+    To add the Kafka-related infrastructure, change `enable_kafka` to `true`
+    and run `terraform apply`&nbsp;.
 
     <details>
       <summary>In case HelloApiKafkaConsumer CloudFormation stack creation fails...</summary>
@@ -533,8 +540,14 @@ Jump to:
     The [AWS MSK event source mapping](https://docs.aws.amazon.com/lambda/latest/dg/with-msk-configure.html#msk-esm-overview)
     reads from the Kafka topic and triggers the consumer Lambda function, which
     logs decoded Kafka messages to the
-    [HelloApiKafkaConsumer](https://console.aws.amazon.com/cloudwatch/home#logsV2:log-groups$3FlogGroupNameFilter$3DHelloApiKafkaConsumer-LambdaFnLogGrp-)
-    CloudWatch log group.
+    [HelloApiKafkaConsumer CloudWatch log group](https://console.aws.amazon.com/cloudwatch/home#logsV2:log-groups$3FlogGroupNameFilter$3DHelloApiKafkaConsumer-LambdaFnLogGrp-).
+
+    If you chose provisioned polling, an additional log stream in the same log
+    group captures event source mapping status, and special CloudWatch metrics
+    are available. To view the special metrics in the AWS Console, open the
+    [HelloApiKafkaConsumer Lambda function](https://us-west-2.console.aws.amazon.com/lambda/home?region=us-west-2#/functions?fo=and&o0=%3A&v0=HelloApiKafkaConsumer-),
+    click on the "MSK" trigger, click on the event source mapping UUID at the
+    bottom, and switch to the "Monitor" tab.
 
 14. If you wish to work on the code, you can save money by temporarily deleting
     expensive AWS resources. The order of the following changes matters. Run
