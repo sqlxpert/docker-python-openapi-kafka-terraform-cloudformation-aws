@@ -65,18 +65,18 @@ variable "enable_kafka" {
   default = false
 }
 
-variable "msk_provisioned_poll" {
-  type        = bool
-  description = "Whether to configure provisioned polling for the Kafka consumer Lambda function's event source mapping, at a higher cost. If this is set to false , some features will not be available. See https://docs.aws.amazon.com/lambda/latest/dg/kafka-scaling-modes.html#services-kafka-advanced-features ."
-
-  default = false
-}
-
 variable "kafka_topic" {
   type        = string
   description = "Kafka topic to write to and read from"
 
   default = "events"
+}
+
+variable "msk_provisioned_poll" {
+  type        = bool
+  description = "Whether to configure provisioned polling for the Kafka consumer Lambda function's event source mapping, at a higher cost. If this is set to false , some features will not be available. Do not change this variable while kafka_enabled is true . See https://docs.aws.amazon.com/lambda/latest/dg/kafka-scaling-modes.html#services-kafka-advanced-features ."
+
+  default = false
 }
 
 variable "hello_api_aws_ecs_service_desired_count_tasks" {

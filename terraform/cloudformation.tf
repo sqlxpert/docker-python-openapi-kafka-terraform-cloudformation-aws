@@ -66,6 +66,9 @@ resource "aws_cloudformation_stack" "kafka_consumer" {
 
   depends_on = [
     aws_schemas_registry.lambda_testevent,
+    aws_vpc_endpoint.hello,
+    aws_vpc_security_group_egress_rule.hello,
+    aws_vpc_security_group_ingress_rule.hello,
   ]
 
   parameters = {
