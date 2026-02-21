@@ -540,8 +540,7 @@ Jump to:
     The [AWS MSK event source mapping](https://docs.aws.amazon.com/lambda/latest/dg/with-msk-configure.html#msk-esm-overview)
     reads from the Kafka topic and triggers the consumer Lambda function, which
     logs decoded Kafka messages to the
-    [HelloApiKafkaConsumer](https://console.aws.amazon.com/cloudwatch/home#logsV2:log-groups$3FlogGroupNameFilter$3DHelloApiKafkaConsumer-LambdaFnLogGrp-)
-    CloudWatch log group.
+    [HelloApiKafkaConsumer CloudWatch log group](https://console.aws.amazon.com/cloudwatch/home#logsV2:log-groups$3FlogGroupNameFilter$3DHelloApiKafkaConsumer-LambdaFnLogGrp-).
 
     If you chose provisioned polling, an additional log stream in the same log
     group captures event source mapping status, and special CloudWatch metrics
