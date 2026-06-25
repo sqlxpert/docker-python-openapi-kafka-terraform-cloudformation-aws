@@ -131,9 +131,17 @@ Jump to:
         ```
 
         ```shell
-        sudo docker run --privileged --rm 'tonistiigi/binfmt' --install all
+        sudo docker run --privileged --rm 'tonistiigi/binfmt:qemu-v10.2.3-68@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0' --install all
 
         ```
+
+        &#9888; As of release
+        [`deploy/v10.2.3-68`](https://github.com/tonistiigi/binfmt/releases/tag/deploy%2Fv10.2.3-68)
+        (2026-06-08),
+        GitHub releases were not immutable. Check
+        [github.com/tonistiigi/binfmt/releases](https://github.com/tonistiigi/binfmt/releases)
+        for new releases. To reduce software supply chain security risks, check
+        a release carefully before using it.
 
       - Review the
         [Terraform S3 backend documentation](https://developer.hashicorp.com/terraform/language/backend/s3)
