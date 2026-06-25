@@ -352,19 +352,6 @@ Jump to:
 
     ```
 
-    ```shell
-    sudo docker buildx build --build-arg BASE_AMAZONLINUX_REGISTRY_DOMAIN="${BASE_AMAZONLINUX_REGISTRY_DOMAIN}" --build-arg BASE_AMAZONLINUX_TAG="${BASE_AMAZONLINUX_TAG}" --build-arg BASE_AMAZONLINUX_DIGEST="${BASE_AMAZONLINUX_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}" --output 'type=docker' --progress 'plain' .
-
-
-
-
-    ```
-
-    ```shell
-    sudo docker push "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}"
-
-    ```
-
     <details>
       <summary>Scanning and updating the container image...</summary>
 
