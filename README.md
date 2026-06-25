@@ -220,6 +220,16 @@ Jump to:
 
     ```
 
+    &#9888; CloudShell: As of June,&nbsp;2026, the Terraform AWS provider has
+    grown too large to fit in the home directory allocated by CloudShell, with
+    the third-party modules used by this project. Use `/tmp`&nbsp;:
+
+    ```shell
+    mkdir --parents /tmp/terraform
+    ln --symbolic /tmp/terraform .terraform
+
+    ```
+
     <details>
       <summary>Generate a terraform.tfvars skeleton...</summary>
 
@@ -338,7 +348,15 @@ Jump to:
     ```
 
     ```shell
-    sudo docker buildx build --build-arg BASE_AMAZONLINUX_REGISTRY_DOMAIN="${BASE_AMAZONLINUX_REGISTRY_DOMAIN}" --build-arg BASE_AMAZONLINUX_TAG="${BASE_AMAZONLINUX_TAG}" --build-arg BASE_AMAZONLINUX_DIGEST="${BASE_AMAZONLINUX_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}" --output 'type=docker' .
+    sudo docker buildx build --build-arg BASE_AMAZONLINUX_REGISTRY_DOMAIN="${BASE_AMAZONLINUX_REGISTRY_DOMAIN}" --build-arg BASE_AMAZONLINUX_TAG="${BASE_AMAZONLINUX_TAG}" --build-arg BASE_AMAZONLINUX_DIGEST="${BASE_AMAZONLINUX_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}" --push .
+
+    ```
+
+    ```shell
+    sudo docker buildx build --build-arg BASE_AMAZONLINUX_REGISTRY_DOMAIN="${BASE_AMAZONLINUX_REGISTRY_DOMAIN}" --build-arg BASE_AMAZONLINUX_TAG="${BASE_AMAZONLINUX_TAG}" --build-arg BASE_AMAZONLINUX_DIGEST="${BASE_AMAZONLINUX_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}" --output 'type=docker' --progress 'plain' .
+
+
+
 
     ```
 

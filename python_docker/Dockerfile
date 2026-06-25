@@ -6,8 +6,8 @@
 # https://docs.docker.com/reference/build-checks/invalid-default-arg-in-from
 ARG BASE_AMAZONLINUX_REGISTRY_DOMAIN='public.ecr.aws'
 ARG BASE_AMAZONLINUX_REGISTRY_PATH="${BASE_AMAZONLINUX_REGISTRY_DOMAIN}/amazonlinux/"
-ARG BASE_AMAZONLINUX_TAG='2023.10.20260216.1'
-ARG BASE_AMAZONLINUX_DIGEST='sha256:dfa14233aa5e9f951074312290a1d217272cd1a04babdf1f87a68ea27d6eeac6'
+ARG BASE_AMAZONLINUX_TAG='2023.12.20260622.0'
+ARG BASE_AMAZONLINUX_DIGEST='sha256:da8159b6af7d20f55f7e5da633dab214c04cac9ea660bb60963b6bca30c8a6a0'
 FROM "${BASE_AMAZONLINUX_REGISTRY_PATH}amazonlinux:${BASE_AMAZONLINUX_TAG}@${BASE_AMAZONLINUX_DIGEST}"
 
 ARG BASE_AMAZONLINUX_REGISTRY_PATH
@@ -64,7 +64,7 @@ ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 RUN \
   --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
   --mount=type=cache,target=.cache/pip,uid=1011,gid=1011 \
-  pip install --upgrade pip==26.0.1 \
+  pip install --upgrade pip==26.1.2 \
   && pip install --requirement /tmp/requirements.txt \
   && pip uninstall --yes pip
 
