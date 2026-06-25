@@ -333,7 +333,6 @@ Jump to:
 
     ```shell
     cd ../terraform
-
     BASE_AMAZONLINUX_REGISTRY_DOMAIN='public.ecr.aws'
     BASE_AMAZONLINUX_TAG=$(terraform output -raw 'base_amazonlinux_tag')
     BASE_AMAZONLINUX_DIGEST=$(terraform output -raw 'base_amazonlinux_digest')
@@ -346,11 +345,10 @@ Jump to:
 
     aws ecr get-login-password --region "${AWS_ECR_REGISTRY_REGION}" | sudo docker login --username 'AWS' --password-stdin "${AWS_ECR_REGISTRY_URI}"
 
-    cd ../python_docker
-
     ```
 
     ```shell
+    cd ../python_docker
     sudo docker buildx build --build-arg BASE_AMAZONLINUX_REGISTRY_DOMAIN="${BASE_AMAZONLINUX_REGISTRY_DOMAIN}" --build-arg BASE_AMAZONLINUX_TAG="${BASE_AMAZONLINUX_TAG}" --build-arg BASE_AMAZONLINUX_DIGEST="${BASE_AMAZONLINUX_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}" --push .
 
     ```
@@ -386,9 +384,9 @@ Jump to:
     re-building to pick up newer versions of secondary dependencies, or it
     might require updating primary module version numbers, in:
 
-    - [`/python_docker/requirements.txt`](https://github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws/blob/main/python_docker/requirements.txt)
+    - [`/python_docker/requirements.txt`](/../../blob/main/python_docker/requirements.txt)
       _or_
-    - [`/python_docker/Dockerfile`](https://github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws/blob/main/python_docker/Dockerfile)&nbsp;.
+    - [`/python_docker/Dockerfile`](/../../blob/main/python_docker/Dockerfile)&nbsp;.
 
     Note: For the Kafka consumer function,
     [AWS Lambda automatically applies security updates](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html)
