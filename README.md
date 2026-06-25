@@ -6,6 +6,15 @@ provisioned with Terraform. (CloudFormation is used indirectly, for a modular
 Kafka consumer stack.) I hope you will be able to adapt it for your own
 projects, under the terms of the license.
 
+>&#128274; Software supply chain security is on everyone's mind. I made GitHub
+releases immutable as of `v1.0.0` (2026-06-25). This project has always used an
+Amazon Linux 2023 base container image with the latest tag and digest pinned,
+and provided a process and instructions for rebuilding with a future version.
+Amazon provides deterministic operating system package versions, and I pin
+Python packages to the latest versions. The instructions note that a
+Docker-recommended cross-platform build tool did not have immutable releases as
+of 2026-06-25.
+
 Jump to:
 [Installation](#installation)
 &bull;
@@ -33,6 +42,8 @@ Jump to:
 - Amazon Linux starts with fewer vulnerabilities, is updated frequently by AWS
   staff, and uses
   [deterministic&nbsp;operating&nbsp;system&nbsp;package&nbsp;versions](https://docs.aws.amazon.com/linux/al2023/ug/deterministic-upgrades.html)
+- The latest base container version's tag and digest are pinned, and the
+  process for re-building the image from a future version is documented
 - [AWS&nbsp;CloudShell](https://docs.aws.amazon.com/cloudshell/latest/userguide/welcome.html)
   or EC2 provides a controlled, auditable environment for building container
   images
@@ -135,12 +146,12 @@ Jump to:
 
         ```
 
-        &#9888; As of release
+        &#9888; As of
         [`deploy/v10.2.3-68`](https://github.com/tonistiigi/binfmt/releases/tag/deploy%2Fv10.2.3-68)
         (2026-06-08),
         GitHub releases were not immutable. Check
         [github.com/tonistiigi/binfmt/releases](https://github.com/tonistiigi/binfmt/releases)
-        for new releases. To reduce software supply chain security risks, check
+        for new versions. To reduce software supply chain security risks, check
         a release carefully before using it.
 
       - Review the
@@ -271,7 +282,7 @@ Jump to:
         bucket = "NameOfYourS3Bucket"
         key    = "DesiredTerraformStateFileName"
 
-        use_lockfile = true # No more DynamoDB; now S3-native!
+        use_lockfile = true # No more DynamoDB; S3-native as of Terraform v1.11!
       }
     }
     EOF
