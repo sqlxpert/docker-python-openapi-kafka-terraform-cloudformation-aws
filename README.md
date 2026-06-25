@@ -286,6 +286,7 @@ Jump to:
     ```
 
     ```shell
+    cd ../terraform
     terraform apply
 
     ```
@@ -331,6 +332,8 @@ Jump to:
     Docker container image, then build it.
 
     ```shell
+    cd ../terraform
+
     BASE_AMAZONLINUX_REGISTRY_DOMAIN='public.ecr.aws'
     BASE_AMAZONLINUX_TAG=$(terraform output -raw 'base_amazonlinux_tag')
     BASE_AMAZONLINUX_DIGEST=$(terraform output -raw 'base_amazonlinux_digest')
