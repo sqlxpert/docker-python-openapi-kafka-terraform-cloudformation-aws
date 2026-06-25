@@ -131,9 +131,17 @@ Jump to:
         ```
 
         ```shell
-        sudo docker run --privileged --rm 'tonistiigi/binfmt' --install all
+        sudo docker run --privileged --rm 'tonistiigi/binfmt:qemu-v10.2.3-68@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0' --install all
 
         ```
+
+        &#9888; As of release
+        [`deploy/v10.2.3-68`](https://github.com/tonistiigi/binfmt/releases/tag/deploy%2Fv10.2.3-68)
+        (2026-06-08),
+        GitHub releases were not immutable. Check
+        [github.com/tonistiigi/binfmt/releases](https://github.com/tonistiigi/binfmt/releases)
+        for new releases. To reduce software supply chain security risks, check
+        a release carefully before using it.
 
       - Review the
         [Terraform S3 backend documentation](https://developer.hashicorp.com/terraform/language/backend/s3)
@@ -220,6 +228,16 @@ Jump to:
 
     ```
 
+    &#9888; CloudShell: As of June,&nbsp;2026, the Terraform AWS provider has
+    grown too large to fit in the home directory allocated by CloudShell, with
+    the third-party modules used by this project. Use `/tmp`&nbsp;:
+
+    ```shell
+    mkdir --parents /tmp/terraform
+    ln --symbolic /tmp/terraform .terraform
+
+    ```
+
     <details>
       <summary>Generate a terraform.tfvars skeleton...</summary>
 
@@ -276,6 +294,7 @@ Jump to:
     ```
 
     ```shell
+    cd ../terraform
     terraform apply
 
     ```
@@ -321,6 +340,7 @@ Jump to:
     Docker container image, then build it.
 
     ```shell
+    cd ../terraform
     BASE_AMAZONLINUX_REGISTRY_DOMAIN='public.ecr.aws'
     BASE_AMAZONLINUX_TAG=$(terraform output -raw 'base_amazonlinux_tag')
     BASE_AMAZONLINUX_DIGEST=$(terraform output -raw 'base_amazonlinux_digest')
@@ -333,17 +353,11 @@ Jump to:
 
     aws ecr get-login-password --region "${AWS_ECR_REGISTRY_REGION}" | sudo docker login --username 'AWS' --password-stdin "${AWS_ECR_REGISTRY_URI}"
 
+    ```
+
+    ```shell
     cd ../python_docker
-
-    ```
-
-    ```shell
-    sudo docker buildx build --build-arg BASE_AMAZONLINUX_REGISTRY_DOMAIN="${BASE_AMAZONLINUX_REGISTRY_DOMAIN}" --build-arg BASE_AMAZONLINUX_TAG="${BASE_AMAZONLINUX_TAG}" --build-arg BASE_AMAZONLINUX_DIGEST="${BASE_AMAZONLINUX_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}" --output 'type=docker' .
-
-    ```
-
-    ```shell
-    sudo docker push "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}"
+    sudo docker buildx build --build-arg BASE_AMAZONLINUX_REGISTRY_DOMAIN="${BASE_AMAZONLINUX_REGISTRY_DOMAIN}" --build-arg BASE_AMAZONLINUX_TAG="${BASE_AMAZONLINUX_TAG}" --build-arg BASE_AMAZONLINUX_DIGEST="${BASE_AMAZONLINUX_DIGEST}" --platform='linux/arm64' --tag "${AWS_ECR_REPOSITORY_URL}:${HELLO_API_IMAGE_TAG}" --push .
 
     ```
 
@@ -378,9 +392,9 @@ Jump to:
     re-building to pick up newer versions of secondary dependencies, or it
     might require updating primary module version numbers, in:
 
-    - [`/python_docker/requirements.txt`](https://github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws/blob/main/python_docker/requirements.txt)
+    - [`/python_docker/requirements.txt`](/../../blob/main/python_docker/requirements.txt)
       _or_
-    - [`/python_docker/Dockerfile`](https://github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws/blob/main/python_docker/Dockerfile)&nbsp;.
+    - [`/python_docker/Dockerfile`](/../../blob/main/python_docker/Dockerfile)&nbsp;.
 
     Note: For the Kafka consumer function,
     [AWS Lambda automatically applies security updates](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html)
