@@ -403,9 +403,9 @@ Jump to:
     re-building to pick up newer versions of secondary dependencies, or it
     might require updating primary module version numbers, in:
 
-    - [`/python_docker/requirements.txt`](/../../blob/v1.0.0/python_docker/requirements.txt)
+    - [`/python_docker/requirements.txt`](/../../blob/v1.0.1/python_docker/requirements.txt)
       _or_
-    - [`/python_docker/Dockerfile`](/../../blob/v1.0.0/python_docker/Dockerfile)&nbsp;.
+    - [`/python_docker/Dockerfile`](/../../blob/v1.0.1/python_docker/Dockerfile)&nbsp;.
 
     Note: For the Kafka consumer function,
     [AWS Lambda automatically applies security updates](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html)
