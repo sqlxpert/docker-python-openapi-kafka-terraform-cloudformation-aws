@@ -8,10 +8,7 @@ resource "aws_ecr_repository" "hello" {
   region = local.aws_region_main
   name   = each.key
 
-  image_tag_mutability = "MUTABLE"
-  # Give the user the option to specify a new version tag for each image
-  # upload, but do not force this, as tag immutability would.
-  # https://docs.aws.amazon.com/AmazonECR/latest/userguide/image-tag-mutability.html
+  image_tag_mutability = "IMMUTABLE"
 
   force_delete = var.create_aws_ecr_repository
   # Newly-created repository: Allow deletion even if images are present.

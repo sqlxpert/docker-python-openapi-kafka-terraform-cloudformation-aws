@@ -233,7 +233,7 @@ Jump to:
  3. Clone this repository and create `terraform.tfvars` to customize variables.
 
     ```shell
-    git clone 'https://github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws.git' ~/docker-python-openapi-kafka
+    git clone --branch 'v1.0.1' --depth 1 --config 'advice.detachedHead=false' 'https://github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws.git' ~/docker-python-openapi-kafka
     cd ~/docker-python-openapi-kafka/terraform
     touch terraform.tfvars
 
@@ -403,9 +403,9 @@ Jump to:
     re-building to pick up newer versions of secondary dependencies, or it
     might require updating primary module version numbers, in:
 
-    - [`/python_docker/requirements.txt`](/../../blob/v1.0.0/python_docker/requirements.txt)
+    - [`/python_docker/requirements.txt`](/../../blob/v1.0.1/python_docker/requirements.txt)
       _or_
-    - [`/python_docker/Dockerfile`](/../../blob/v1.0.0/python_docker/Dockerfile)&nbsp;.
+    - [`/python_docker/Dockerfile`](/../../blob/v1.0.1/python_docker/Dockerfile)&nbsp;.
 
     Note: For the Kafka consumer function,
     [AWS Lambda automatically applies security updates](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html)
@@ -416,9 +416,14 @@ Jump to:
     environment variables.
 
     Then, to re-build the image, run `HELLO_API_IMAGE_TAG='1.0.1'`
-    (choose an appropriate new version number, taking
+    (choose an appropriate new container image version number, taking
     [semantic&nbsp;versioning](https://semver.org/#semantic-versioning-specification-semver)
-    into account) in the shell and repeat the build and push commands.
+    into account) in the shell and repeat the build command. The push stage
+    will fail with a `cannot be overwritten` error if you try to re-use an
+    existing container image version tag; update the environment variable and
+    repeat the build command. Container image version tags are for your
+    reference, locally. They are not related to the version tags that
+    distinguish releases of this project in GitHub.
 
     To deploy the new image version, set
     `hello_api_image_tag = "1.0.1"` (for example) in Terraform and run
