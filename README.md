@@ -233,7 +233,7 @@ Jump to:
  3. Clone this repository and create `terraform.tfvars` to customize variables.
 
     ```shell
-    git clone 'https://github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws.git' ~/docker-python-openapi-kafka
+    git clone --branch 'v1.0.1' --depth 1 --config 'advice.detachedHead=false' 'https://github.com/sqlxpert/docker-python-openapi-kafka-terraform-cloudformation-aws.git' ~/docker-python-openapi-kafka
     cd ~/docker-python-openapi-kafka/terraform
     touch terraform.tfvars
 
