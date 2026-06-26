@@ -416,9 +416,14 @@ Jump to:
     environment variables.
 
     Then, to re-build the image, run `HELLO_API_IMAGE_TAG='1.0.1'`
-    (choose an appropriate new version number, taking
+    (choose an appropriate new container image version number, taking
     [semantic&nbsp;versioning](https://semver.org/#semantic-versioning-specification-semver)
-    into account) in the shell and repeat the build and push commands.
+    into account) in the shell and repeat the build command. The push stage
+    will fail with a `cannot be overwritten` error if you try to re-use an
+    existing container image version tag; update the environment variable and
+    repeat the build command. Container image version tags are for your
+    reference, locally. They are not related to the version tags that
+    distinguish releases of this project in GitHub.
 
     To deploy the new image version, set
     `hello_api_image_tag = "1.0.1"` (for example) in Terraform and run
